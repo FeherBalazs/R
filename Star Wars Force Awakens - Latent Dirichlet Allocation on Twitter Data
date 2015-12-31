@@ -1,0 +1,102 @@
+#-----------------------------------------
+# Latent Dirichlet Allocation on Twitter
+#-----------------------------------------
+install.packages('RColorBrewer')
+install.packages('twitteR')
+install.packages('RTextTools')
+install.packages('topicmodels')
+install.packages('tm')
+install.packages('ROAuth')
+install.packages("wordcloud")
+
+library(twitteR)
+library(RTextTools);
+library(topicmodels)
+library(tm);
+library(ROAuth)
+library("wordcloud")
+library("tm")
+
+##-----------------
+## Connect to API
+##-----------------
+download.file(url='http://curl.haxx.se/ca/cacert.pem', destfile='cacert.pem')
+reqURL <- 'https://api.twitter.com/oauth/request_token'
+accessURL <- 'https://api.twitter.com/oauth/access_token'
+authURL <- 'https://api.twitter.com/oauth/authorize'
+consumerKey <- 'wl36qGHyjV4gHexsPwIS7Hck4' #put the Consumer Key from Twitter Application
+consumerSecret <- '7bxTF7t79dxqxa7oZ9Xftu9qWWrkaY9TWdCOhSU3hFZrvsx7CA'  #put the Consumer Secret from Twitter Application
+Cred <- OAuthFactory$new(consumerKey=consumerKey,
+	                       consumerSecret=consumerSecret,
+	                       requestURL=reqURL,
+	                       accessURL=accessURL,
+	                       authURL=authURL)
+Cred$handshake(cainfo = system.file('CurlSSL', 'cacert.pem', package = 'RCurl'))
+
+
+#There is URL in Console. You need to go to it, get code and enter it on Console
+save(Cred, file='twitter authentication.Rdata')
+
+load('twitter authentication.Rdata') #Once you launch the code first time, you can start from this line in the future (libraries should be connected)
+registerTwitterOAuth(Cred)
+setup_twitter_oauth(consumerKey, consumerSecret, access_token='144134162-jKSvacGP7L5T0BrV6hNr3rY1TcgHevwmYSe1pjaf', access_secret='9fUDWFJqo41iltJUUutSVyVe8J26ZN9bpP7ZxWEZS1sqU')
+
+
+##-----------------
+## Get tweets
+##-----------------
+twitter_feed <- searchTwitter('#StarWarsTheForceAwakens', n=100000, lang='en');
+ 
+df <- do.call("rbind", lapply(twitter_feed, as.data.frame));
+myCorpus <- Corpus(VectorSource(df$text));
+
+##----------------- 
+## TM
+##-----------------
+myCorpus = tm_map(myCorpus, removePunctuation) 
+myCorpus = tm_map(myCorpus, removeNumbers)
+myCorpus = tm_map(myCorpus, tolower)
+myStopwords = c(stopwords('en'), "starwars", "via", "starwarstheforceawakens", "star", "wars", "movie", "theforceawakens", "spoilers", "time", "now");
+myCorpus = tm_map(myCorpus, removeWords, myStopwords);
+myCorpus = tm_map(myCorpus, stripWhitespace);
+myCorpus <- tm_map(myCorpus, PlainTextDocument) 
+
+myDtm = DocumentTermMatrix(myCorpus, control = list(minWordLength = 3))
+dtm2 =as.matrix(myDtm)
+frequency = colSums(dtm2)
+frequency = sort(frequency, decreasing=TRUE)
+
+##-----------------
+## WordCloud
+##-----------------
+words <- names(frequency)
+pal <- brewer.pal(9, "Set1")
+wordcloud(words, frequency, colors=pal, rot.per=.15, random.order=FALSE, min.freq=50)
+dev.print(png, file = "RplotSW.png", width = 1024, height = 768, bg = "white")
+
+##-----------------
+## LDA
+##-----------------
+
+rowTotals <- apply(myDtm, 1, sum) 		#Find the sum of words in each Document
+myDtm.new   <- myDtm[rowTotals> 0,] 
+
+k = 10;
+SEED = 1234;
+my_TM = 
+list(VEM = LDA(myDtm.new, k = k, control = list(seed = SEED)),
+VEM_fixed = LDA(myDtm.new, k = k, control = list(estimate.alpha = FALSE, seed = SEED)),
+Gibbs = LDA(myDtm.new, k = k, method = "Gibbs", control = list(seed = SEED, burnin = 1000, thin = 100, iter = 1000)),
+CTM = CTM(myDtm.new, k = k, control = list(seed = SEED, var = list(tol = 10^-4), em = list(tol = 10^-3))));
+ 
+Topic = topics(my_TM[["VEM"]], 1);
+ 
+#top 5 terms for each topic in LDA
+Terms = terms(my_TM[["VEM"]], 10);
+Terms;
+ 
+my_topics = topics(my_TM[["VEM"]]);
+ 
+most_frequent = which.max(tabulate(my_topics));
+ 
+terms(my_TM[["VEM"]], 10)[, most_frequent];
