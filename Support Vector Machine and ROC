@@ -1,0 +1,37 @@
+#------------------------------
+# SVM and ROC
+#------------------------------
+install.packages("ROCR")
+install.packages("e1071")
+library("ROCR")
+library("e1071")
+
+data(iris)
+attach(iris)
+
+##selecting features and labels
+x <- subset(iris, select = -Species)
+y <- Species
+
+##SVM hyperparameters
+kernel = "linear"
+degree = 2
+#gamma = if (is.vector(x)) 1 else 1 / ncol(x)
+gamma = 4
+scale = FALSE
+cross = 5
+model <- svm(x, y, kernel = kernel, degree = degree, gamma = gamma, scale = scale, cross = cross) 
+
+print(model)
+summary(model)
+
+##test with train data
+pred <- predict(model, x, kernel = kernel, degree = degree, gamma = gamma, scale = scale)
+
+##Check accuracy:
+table(pred, y)
+
+##visualize (classes by color, SV by crosses):
+plot(cmdscale(dist(iris[,-5])),
+     col = as.integer(iris[,5]),
+     pch = c("o","+")[1:150 %in% model$index + 1])
