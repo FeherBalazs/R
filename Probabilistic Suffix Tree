@@ -1,0 +1,20 @@
+#---------------------------
+# Probabilistic Suffix Tree
+#---------------------------
+install.packages('stringdist')
+library("stringdist")
+
+install.packages('PST')
+library("PST")
+
+v1 <- c("alma","aladar", "mano", "mamba", "balta", "manko", "dharma", "tripod", "ipod", "voda")
+stringdist("alma", v1, method = c("lcs")) #further methods: ("hamming", "lcs")
+
+s1 <- seqdef(t(c("voda", "voda", "tele","tele","t","t","voda")))
+S1 <- pstree(s1)
+
+print(S1)
+
+plot(S1,withlegend=TRUE, main = "Probabilistic Suffix Tree\n", edgepar = list(horiz = TRUE, lab.type="none"), nodePar = list(lab.type = "n"))
+
+dev.new(width=15, height=15)
