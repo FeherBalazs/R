@@ -1,0 +1,53 @@
+#---------------------------
+###4-4-5 Transform 
+#---------------------------
+
+#generate data
+x <- seq(ISOdate(2016,1,1), by = "week", length.out = 52)
+y <- rnorm(52, mean = 0, sd = 1)
+
+#create dataframe from data
+m <- data.frame(x,y)
+colnames(m) <- c("date", "price")
+
+#Transform to 4-4-5
+
+#create dummy variables for aggregating 4-4-5 style
+eachk=c(4,4,5)
+n = 1
+z <- numeric()
+for (i in 1:4) {
+	for (k in eachk) {
+		z <- c(z,rep(n,each=k))
+		n = n + 1
+	}
+}
+
+#extend dataframe with dummies
+m <- data.frame(x,y,z)
+colnames(m) <- c("date", "price", "aggreg_dummy")
+
+#aggregate data by dummies
+aggdata <-aggregate(m$price, by=list(m$aggreg), FUN=mean, na.rm=TRUE)
+colnames(aggdata) <- c("months", "aggregated_price")
+
+month <- seq(ISOdate(2016,1,1), by = "month", length.out = 12)
+aggdata$months <- month
+
+print(aggdata)
+
+#BackTransform from 4-4-5 to weeekly 
+
+months=c(4,4,5,4,4,5,4,4,5,4,4,5)
+eachk=c(4,4,5)
+n = 1
+zw <- numeric()
+for (i in 1:4) {
+	for (k in eachk) {
+		zw <- c(zw,rep((aggdata$aggregated_price[n]/months[n]), each=k))
+		n = n + 1
+	}
+}
+
+m <- data.frame(x,y,z,zw)
+colnames(m) <- c("date", "price", "aggreg_dummy", "backaggreg")
