@@ -1,0 +1,1 @@
+euclidean_distance <- function(p,q){sqrt(sum((p - q)^2))}
