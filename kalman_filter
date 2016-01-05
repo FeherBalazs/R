@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------
-#Kalman filter by Tibor: task: apply it to time series data and forecast
+#Kalman filter application to time series data and forecasting
 #------------------------------------------------------------------------
 install.packages("dlm")
 library("dlm")
