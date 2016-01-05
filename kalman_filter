@@ -1,0 +1,33 @@
+#------------------------------------------------------------------------
+#Kalman filter by Tibor: task: apply it to time series data and forecast
+#------------------------------------------------------------------------
+install.packages("dlm")
+library("dlm")
+
+KalmanInt <- function(x)
+{
+build.1 <- function(theta)
+{
+dlmModPoly(order=1,dV=exp(theta[1]),dW=exp(theta[2]))
+}
+fit <- dlmMLE(x,parm=c(1,1),build.1)
+polyn <- build.1(fit$par)
+filtered <- dlmFilter(x,polyn)
+return(dropFirst(filtered$m))
+}
+
+m <- read.csv("C:/Users/bfeher/Documents/R/bidu.csv") #baidu stocks dataset
+kalman = KalmanInt(m$Close)
+
+plot(m$Close)
+lines(KalmanInt(m$Close), col="brown3", lwd=2, lty=2) #somehow Kalman filter does not affect this particular dataset
+
+m <- read.csv("C:\\Users\\bfeher\\Documents\\Tibor Training\\MAMBA2.txt", sep = "\t", header = TRUE, dec = ".")
+kalman = KalmanInt(m$Value)
+
+plot(m$Value)
+lines(KalmanInt(m$Value), col="brown3", lwd=2, lty=2) #Kalman filter works with this dataset
+
+#lets fit a neuralnetwork and make forecasts
+fit <- nnetar(m$Close)
+plot(forecast(fit))
