@@ -1,0 +1,21 @@
+require(plyr)
+
+x1 <- seq(ISOdate(2016,1,1), by = "day", length.out = 366)
+y <- rnorm(366, mean = 0, sd = 1)
+z <- x1
+z[32:60] <- NA
+x2 <- seq(ISOdate(2016,1,3), by = "day", length.out = 366)
+
+m <- data.frame(x1,y,z,x2)
+colnames(m) <- c("date_1", "price", "partial_date", "date_2")
+
+filler <- function(fulldate, partialdate){
+	for (i in 1:length(fulldate)) {
+		if (fulldate[i] - partialdate[i] != 0) {
+		return("There are missing elements in time series object.")}
+}
+}
+
+filler(m$date_1,m$date_2)
+
+#filler(m$date_1,m$partial_date) #this code is not yet finished, I can get back to it if it will be needed
