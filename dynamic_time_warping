@@ -1,0 +1,27 @@
+#---------------------
+#Dynamic Time Warping
+#---------------------
+install.packages("dtw")
+library("dtw")
+
+m <- read.csv("somefile")
+m[is.na(m)] <- 0
+
+# choices=colnames(m)
+# m2=select.list(choices, preselect = NULL, multiple = TRUE, title = 'Select Variables to Include!', graphics = getOption("menu.graphics"))
+
+# for (i in m2) {
+# 	v1 = predict(loess(1:length(m$i)~m$i))
+# 	dataMatrix = data.frame(v1=i)
+# } #this for loop does not work yet, asked on SO
+
+v1 <- predict(loess(1:length(m$Price)~m$Price))
+v2 <- predict(loess(1:length(m$Value)~m$Value))
+
+dataMatrix = data.frame(v1=v1, v2=v2) #DTW works now with 2 variables but I would need more variables to do clustering meaningful
+
+distObject = dist(dataMatrix, method="DTW",open.end = FALSE, open.begin = FALSE, 
+	window.type = "itakura", step=asymmetricP0, dist.method = "Manhattan")
+
+hc = hclust(distObject,method = "mcquitty")
+cuts = cutreeDynamic(hc, minClusterSize=4,  method="hybrid", distM=as.matrix(distObject), deepSplit=2, pamStage = TRUE)
