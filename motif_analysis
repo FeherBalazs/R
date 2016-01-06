@@ -1,0 +1,30 @@
+#-------------------------------------------------------------------------
+#MOTIF Analysis on financial data for identifying stock movement patterns
+#-------------------------------------------------------------------------
+m <- read.csv("C:/Users/bfeher/Documents/R/bidu.csv") #BAIDU stocks
+
+install.packages('stringdist')
+install.packages('PST')
+install.packages("infotheo")
+library("stringdist")
+library("PST")
+library("infotheo")
+
+historical_stock_prices <- m$Close
+
+discretized <- discretize(historical_stock_prices, disc="equalfreq", nbins=5)
+seqences <- seqdef(t(discretized))
+tree <- pstree(seqences, L=5)
+print(tree)
+plot(tree,withlegend=TRUE, main = "Probabilistic Suffix Tree\n", edgepar = list(horiz = TRUE, lab.type="none"), nodePar = list(lab.type = "n"))
+
+#buy_or_sell <- function(most_recent_stock_prices){
+#	if () {
+#		what_to_do = "buy"
+#	} else {
+#		whato_to_do = "sell"
+#	}
+#	return(what_to_do)
+#}
+
+
