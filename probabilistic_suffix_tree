@@ -2,9 +2,8 @@
 # Probabilistic Suffix Tree
 #---------------------------
 install.packages('stringdist')
-library("stringdist")
-
 install.packages('PST')
+library("stringdist")
 library("PST")
 
 v1 <- c("alma","aladar", "mano", "mamba", "balta", "manko", "dharma", "tripod", "ipod", "voda")
