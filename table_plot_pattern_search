@@ -1,0 +1,20 @@
+#--------------------------
+#TablePlot Pattern Search
+#--------------------------
+install.packages("tabplot")
+install.packages("ggplot2")
+library("tabplot")
+library("ggplot2")
+
+#loading data
+data(diamonds)
+m <- diamonds
+
+#select variables to include from dataset and specify on which column the data is sorted
+choices = colnames(m)
+select_var = select.list(choices, preselect = NULL, multiple = TRUE, title = 'Select Variables to Include!', graphics = getOption("menu.graphics"))
+sortcol = select.list(choices, preselect = NULL, multiple = TRUE, title = 'Specify on which column the data is sorted!', graphics = getOption("menu.graphics"))
+subset_m <- m[select_var]
+
+#plot
+tableplot(subset_m, sortCol=sortcol)
