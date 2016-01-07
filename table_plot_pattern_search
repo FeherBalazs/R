@@ -10,11 +10,15 @@ library("ggplot2")
 data(diamonds)
 m <- diamonds
 
-#select variables to include from dataset and specify on which column the data is sorted
+#select variables to include from dataset, specify on which column the data is sorted, and set zooming range
 choices = colnames(m)
 select_var = select.list(choices, preselect = NULL, multiple = TRUE, title = 'Select Variables to Include!', graphics = getOption("menu.graphics"))
-sortcol = select.list(choices, preselect = NULL, multiple = TRUE, title = 'Specify on which column the data is sorted!', graphics = getOption("menu.graphics"))
 subset_m <- m[select_var]
+sortcol = select.list(choices, preselect = NULL, multiple = TRUE, title = 'Specify on which column(s) the data is sorted!', graphics = getOption("menu.graphics"))
+choices = c(as.character(1:100))
+range = select.list(choices, preselect = NULL, multiple = TRUE, title = 'Select zooming range: ', graphics = getOption("menu.graphics"))
+from = min(as.numeric(range))
+to = max(as.numeric(range))
 
 #plot
-tableplot(subset_m, sortCol=sortcol)
+tableplot(subset_m, sortCol=sortcol, from =from, to = to)
