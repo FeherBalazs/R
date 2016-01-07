@@ -1,0 +1,26 @@
+#---------------------------------------------
+#Modeling Projection Pursuit Regression - PPR
+#---------------------------------------------
+install.packages("doBy")
+library("doBy")
+library("stats")
+require(caTools)
+
+m <- read.csv("C:/Users/bfeher/Documents/R Training/MAMBA2.txt", sep = "\t", header = TRUE, dec = ".")
+m <- na.omit(m)
+
+#select variables to include from dataset
+select_var = select.list(colnames(m), preselect = NULL, multiple = TRUE, title = 'Select Variables to Include!', graphics = getOption("menu.graphics"))
+aggregated_m = summaryBy(Price + Product ~ Time, data = m, FUN = function(x) {c(mean(x))}, keep.names=TRUE) #finish it by automatically aggregating with selected elements
+
+#train test split
+split_size <- floor(0.75 * nrow(aggregated_m))
+ind <- sample(seq_len(nrow(aggregated_m)), size = split_size)
+train = aggregated_m[ind, ]
+test = aggregated_m[-ind, ]
+
+#fitting model
+fit = ppr(train$Product, train$Price, nterms=2)
+
+#making predictions
+predict(fit, ) 
