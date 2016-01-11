@@ -1,0 +1,14 @@
+#---------------------
+#Time Series Forecast
+#---------------------
+
+#---------------------
+##STL
+#---------------------
+tsmod <- stlm(USAccDeaths, modelfunction=ar)
+plot(forecast(tsmod, h=36))
+ 
+plot(stlf(AirPassengers, lambda=0))
+ 
+decomp <- stl(USAccDeaths,s.window="periodic")
+plot(forecast(decomp))
