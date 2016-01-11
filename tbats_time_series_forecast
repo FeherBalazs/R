@@ -1,0 +1,15 @@
+#---------------------
+#Time Series Forecast
+#---------------------
+
+#---------------------
+##TBATS
+#---------------------
+install.packages("forecast")
+library("forecast")
+
+fit <- tbats(USAccDeaths, use.parallel=FALSE)
+plot(forecast(fit))
+ 
+taylor.fit <- tbats(taylor)
+plot(forecast(taylor.fit))
