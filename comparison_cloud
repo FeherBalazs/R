@@ -1,0 +1,44 @@
+#---------------------
+## Comparison Cloud
+#---------------------
+install.packages("wordcloud")
+install.packages("tm")
+library("wordcloud")
+library("tm")
+
+m <- read.csv("C:/Users/bfeher/Documents/R Training/CardData.csv", sep = ";", header = TRUE, dec = ".")
+
+# Select only "factors" from dataset (as only these can be used)
+factors <- sapply(m, is.factor) 
+mfactors = m[,factors]
+
+# Create menu for selecting variables to include and select "Compare by" option
+choices=colnames(mfactors)
+selected_variables=select.list(choices, preselect = NULL, multiple = TRUE, title = 'Select Variables to Include!', graphics = getOption("menu.graphics"))
+compare_by=select.list(choices, preselect = NULL, multiple = TRUE, title = 'Compare By:', graphics = getOption("menu.graphics"))
+mtext = m[,selected_variables]
+
+# Creating input for Corpus(VectorSource())
+mtext =data.frame(mtext)
+texts = unname(c(apply(mtext,1,function(x){paste(as.character(x),collapse = " ")})))	
+textsdiff =  split(texts, m[,compare_by])
+
+# Create TermDocumentMatrix
+xkcd.corpusD <- Corpus(VectorSource(textsdiff))
+xkcd.corpusD <- tm_map(xkcd.corpusD, removePunctuation)
+xkcd.corpusD <- tm_map(xkcd.corpusD, content_transformer(tolower))
+xkcd.corpusD <- tm_map(xkcd.corpusD, function(x) removeWords(x, stopwords("english")))
+tdmD = TermDocumentMatrix(xkcd.corpusD)
+
+# Call new device
+dev.new(width=15, height=15)
+par(bg = "black", col = "black", col.axis = "white", col.main  = "white", fg= "black",mfrow = c(1,1))
+layout(matrix(c(1, 2), nrow=2), heights=c(1, 10))
+par(mar=rep(0, 4))
+plot.new()
+
+# Plot results
+text(x=0.5, y=0.5, "Comparison Cloud", col = "white")
+tdmDM = as.matrix(tdmD)
+colnames(tdmDM) = levels(m[,compare_by])
+comparison.cloud(term.matrix = tdmDM, colors = brewer.pal(8, "Dark2"),scale = c(3,.5), random.order = FALSE, title.size = 1.5,max.words=300)
