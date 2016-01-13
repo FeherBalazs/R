@@ -1,0 +1,30 @@
+#------------------
+# Classical MDS
+#------------------
+install.packages("dynamicTreeCut")
+install.packages("RColorBrewer")
+library(dynamicTreeCut)
+library(RColorBrewer)
+
+# read data
+m <- read.csv('C:/Users/bfeher/Google Drive/data science/R Training/MAMBA2.txt', sep = "\t", header = TRUE, dec = ".")
+
+# data aggregation
+v1 <- aggregate(as.matrix(m[,c('Price', 'PromoPrice', 'Value', 'PromoVolume', 'WeightedDistribution')]), by=list(m$Product),FUN=mean, na.rm=TRUE)
+v1_data_table <- as.data.table(v1[!is.na(v1$PromoPrice),])
+v1_dist <- dist(v1_data_table, method="euclidean")
+
+# hierarchical clustering
+hc <- hclust(v1_dist)
+plot(hc)
+hsclust = cutree(hc, h = 250)
+
+# multi dimensional scaling
+mdscoord <- cmdscale(v1_dist)
+
+# setting brewer palette
+bpal_set1 = brewer.pal(8, "Set1") 
+
+# plot
+plot(x = mdscoord[,1], y = mdscoord[,2], col=bpal_set1[hsclust], pch=16, 
+	main="Simple hierarchical clustering", xlab="Coordiante 1", ylab="Coordinate 2")
