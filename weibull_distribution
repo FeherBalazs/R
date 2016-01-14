@@ -1,0 +1,8 @@
+#------------------------
+# Weibull distribution 
+#------------------------
+install.packages("MASS")
+library(MASS)
+x <- c(23,19,37,38,40,36,172,48,113,90,54,104,90,54,157,51,77,78,144,34,29,45,16,15,37,218,170,44,121)
+f <- fitdistr(x, 'weibull')
+plot(x, dweibull(x, shape=f$estimate[1], scale=f$estimate[2]))
