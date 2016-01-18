@@ -1,0 +1,36 @@
+#------------------------------
+# Random Forest
+#------------------------------
+install.packages("randomForest")
+install.packages("RColorBrewer")
+library(randomForest)
+library(RColorBrewer)
+
+# read data
+m <- read.csv('C:/Users/bfeher/Google Drive/data science/R Training/MAMBA2.txt', sep = "\t", header = TRUE, dec = ".")
+m <- na.omit(m)
+
+m.rf=randomForest(Price~PromoVolume+Value, data = m)
+print(m.rf)
+predict(m.rf, newdata=data.frame("PromoVolume"=c(2,0.2), "Value"=c(3,10)))
+
+## Look at variable importance:
+m.rf=randomForest(Price~., data = m)
+round(importance(m.rf), 2)
+
+## The `unsupervised' case:
+m.rf=randomForest(Price~., data = m)
+set.seed(17)
+m.urf <- randomForest(m)
+palette = brewer.pal(3,"Set1")
+MDSplot(m.urf, m$Price, palette=palette)
+
+## Regression:
+m.rf=randomForest(Price~PromoVolume+Value, data = m)
+set.seed(131)
+m.rf <- randomForest(Price~PromoVolume+Value, data=m, mtry=2,
+                         importance=TRUE, na.action=na.omit,
+                         xtest=data.frame("PromoVolume"=c(2), "Value"=c(3)))
+print(m.rf)
+m.rf$test
+m.rf$mse
