@@ -1,0 +1,24 @@
+#---------------------------------------------------
+#Peak Recurrence Detector for Seasonality Detetion
+#---------------------------------------------------
+
+#task: detect recurrent peaks in time series data
+
+v1 = c(10,1,1,1,9,1,1,1,11,1,1,1,10,1,1,1,11,1,1,1,9,1,1,1)
+
+v1.ts <- ts(v1)
+v1.acf = acf(v1.ts)
+v1.acf$acf[1:10]
+
+#create algorithm 
+threshold = qnorm((1 + 0.95)/2)/sqrt(sum(!is.na(as.vector(v1.acf$acf))))
+
+v1.season = v1.ts
+
+for(i in seq(1,length(v1))){
+  if (v1.acf$acf[i] > threshold){
+    v1.season[i] = 1}
+    else {
+      v1.season[i] = 0}
+    }
+
